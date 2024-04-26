@@ -8,6 +8,8 @@ let cityNames = JSON.parse(localStorage.getItem("cityNames")) || [];
 
 
 function locationPull() {
+    
+    console.log('city.val()')
     const locationApi = `https://api.openweathermap.org/geo/1.0/direct?q=${city.val()}&appid=${apiKey}`
     fetch(locationApi) 
         .then(response => response.json())
@@ -33,7 +35,7 @@ function removeDoubles() {
 
 function buttonMaker() {
     console.log("buttonmaker", cityNames)
-    for (let i = 0; i < cityNames.length; i++) {
+    for (let i = 1; i < cityNames.length; i++) {
     let button = $("<button>").text(cityNames[i]).attr("id", cityNames[i]).addClass("hButtons").appendTo($(".history"));
     
 }
@@ -65,14 +67,14 @@ function saveToStorage(cityWeather) {
 
 function dataPopulate() {
     const weather = readLocalStorage()
-    const cityName = $("<h1>").text(city.val()).appendTo($(".today"));
+    const cityName = $("<h1>").text(weather.city.name).appendTo($(".today"));
     const today = $("<div>").addClass("superDuper").appendTo($(".today"));
     const date = $("<p>").text(dayjs.unix(weather.list[0].dt).format("MM/DD/YYYY")).appendTo(today);
     const temp = $("<p>").text(`Temp:${weather.list[0].main.temp}`).appendTo(today);
     const wind = $("<p>").text(`Wind:${weather.list[0].wind.speed}/mph`).appendTo(today);
     const humidity = $("<p>").text(`Humidity:${weather.list[0].main.humidity}%`).appendTo(today);
     
-    for (let i = 1; i < weather.list.length; i+=7) {
+    for (let i = 0; i < weather.list.length; i+=7) {
         const forcast = $("<div>").addClass("superDuper").appendTo($(".forcast"));
         const date = $("<p>").text(dayjs.unix(weather.list[i].dt+86400).format("MM/DD/YYYY")).appendTo(forcast);
         const temp = $("<p>").text(`Temp:${weather.list[i].main.temp}`).appendTo(forcast);
@@ -83,13 +85,18 @@ function dataPopulate() {
 };
 
 
+function displayCityName(nameOfCity){
+    $('h2').text(nameOfCity)
+}
 
 
 
 form.on("click", ".action", function(e){
     e.preventDefault()
+    console.log('form')
     locationPull();
     console.log(city.val())
+    displayCityName(city.val())
     $('.today').empty()
     $('.forcast').empty()
     
@@ -97,17 +104,17 @@ form.on("click", ".action", function(e){
 
 buttonMaker();
 
-// local storage holding most recent searches
+
 
 
 
 $(".history").on("click", ".hButtons", function(e){
     e.preventDefault()
     const cityName = $(this).attr("id");
+    displayCityName(cityName)
     $('.today').empty()
     $('.forcast').empty()
     const locationApi = `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&appid=${apiKey}`
-    const clickedCityName = $("<h1>").text(cityName).appendTo($(".today"));
     fetch(locationApi)
     .then(response => {
         return response.json()
@@ -119,10 +126,5 @@ $(".history").on("click", ".hButtons", function(e){
     })
 })
 
-
-
-
-// const action = document.getElementById("myBtn");
-// action.addEventListener("click", localStorage.setItem(key, value));
 
 
